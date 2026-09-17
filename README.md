@@ -1,9 +1,11 @@
 # Lambda AST Encoding and Evaluation
 
-An OCaml implementation of a lambda-calculus abstract syntax tree
-encoded as
-lambda terms using the Scott representation (also known as the Mogensen-Scott encoding).
-The encoded AST can be evaluated back into ordinary lambda terms.
+As evaluation of lambda expressions is itself a computational task,
+it stands to reason that this can also be expressed as a lambda term.
+This project encodes the abstract syntax tree of lambda expressions as other lambda terms,
+using the so-called "Morgensen-Scott encoding".
+An evaluator expression is defined such that, when applied to an encoding of a lambda term $M$,
+yields a term that is semantically equivalent to $M$.
 
 Terms use **de Bruijn indices**, so variables are represented by integers:
 
