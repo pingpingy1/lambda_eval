@@ -13,14 +13,14 @@ open Lambda_list
  * **************************************
  *)
 
-(* Y-combinator: Y = \lambda f. (\lambda x. f (x x)) (\lambda x. f(x x)) *)
+(* Y-combinator: Y = λ f. (λ x. f (x x)) (λ x. f(x x)) *)
 let y_comb =
   Lam
     (App
        ( Lam (App (Var 1, App (Var 0, Var 0))),
          Lam (App (Var 1, App (Var 0, Var 0))) ))
 
-(* lookup lst n = n (head lst) (\lambda n'. lookup (tail lst) n') *)
+(* lookup lst n = n (head lst) (λ n'. lookup (tail lst) n') *)
 let lookup : term =
   App
     ( y_comb,
@@ -31,16 +31,21 @@ let lookup : term =
                  ( App (Var 0, head (Var 1)),
                    Lam (App (App (Var 3, tail (Var 2)), Var 0)) )))) )
 
+(* This inductive evaluation combinator should satisfy:
+ * eval_comb t nil ->* (normal form of t) *)
 let eval_comb : term =
   App
     ( y_comb,
       Lam
         (Lam
            (Lam
-              (let v_case = Lam (App (App (lookup, Var 1), Var 0)) in
+              ((* v_case lst (Var n) = lookup lst n *)
+               let v_case = Lam (App (App (lookup, Var 1), Var 0)) in
+               (* l_case lst (Lam b) = Lam (eval b ((Var 0) :: lst)) *)
                let l_case =
                  Lam (Lam (App (App (Var 4, Var 1), cons (Var 0) (Var 2))))
                in
+               (* a_case lst (App (t1, t2)) = App (eval t1 lst) (eval t2 lst) *)
                let a_case =
                  Lam
                    (Lam
@@ -50,5 +55,5 @@ let eval_comb : term =
                in
                App (App (App (Var 1, v_case), l_case), a_case)))) )
 
-(* eval = \lambda t. eval_comb t nil *)
+(* eval = λ t. eval_comb t nil *)
 let e_eval : term = Lam (App (App (eval_comb, Var 0), nil))

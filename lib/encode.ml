@@ -31,17 +31,18 @@ let rec normalize (max_steps : int) (t : term) : term =
  * Scott encoding: generally applicable encoding of data types
  * For a datatype with N constructors c_i with respective arities a_i,
  * c_i is encoded as the following:
- * \lambda x_1. \lambda x_2. ... \lambda x_{a_i}.
- *   \lambda c_1. \lambda c_2. ... \lambda c_N.
+ * λ x_1 x_2 ... x_{a_i}.
+ *   λ c_1 c_2 ... c_N.
  *     c_i x_1 x_2 ... x_{a_i}
  *
  * A match expression that performs f_i (x_1, ..., x_{a_i}) for case c_i
- * is then evaluated as a f_1 f_2 ... f_N.
+ * is then evaluated as t f_1 f_2 ... f_N.
  *
  * Lambda calculus has three constructors:
- * - Var (arity = 1) => encode (Var n) = \lambda a b c. a (encode_nat n)
- * - Lam (arity = 1) => encode (Lam t) = \lambda a b c. b (encode t)
- * - App (arity = 2) => encode (App (t1, t2)) = \lambda a b c. c (encode t1) (encode t2)
+ * - Var (arity = 1) => encode (Var n) = λ a b c. a (encode_nat n)
+ * - Lam (arity = 1) => encode (Lam t) = λ a b c. b (encode t)
+ * - App (arity = 2) => encode (App (t1, t2)) = λ a b c. c (encode t1) (encode t2)
+ * Application of Scott encoding to lambda terms is also called the "Morgensen-Scott encoding"
  * *********************************************************************
  *)
 let rec encode : term -> term = function
