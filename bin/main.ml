@@ -24,21 +24,21 @@ let test_term (t : term) : unit =
 
 let _ = print_description ()
 let _ = test_term (App (Lam (Var 0), Lam (Var 0)))
-
 let _ = print_endline "Try it yourself!"
 
 let rec loop () : unit =
   let _ = print_string "> " in
   let _ = flush stdout in
   let s = read_line () |> String.trim in
-  if s = ":q" || s = ":quit" then print_endline "Bye~" else
-  if s = "" then loop () else
-  let toks = tokenize s |> encode_toks in
-  let _ = print_endline ("Encoded tokens: " ^ term_to_string toks) in
-  let ast = App (e_parse, toks) |> normalize_get 10000 in
-  let _ = print_endline ("AST: " ^ term_to_string ast) in
-  let res = App (e_eval, ast) |> normalize_get 1000 in
-  let _ = print_endline ("Evaluation: " ^ term_to_string res) in
-  loop ()
+  if s = ":q" || s = ":quit" then print_endline "Bye~"
+  else if s = "" then loop ()
+  else
+    let toks = tokenize s |> encode_toks in
+    let _ = print_endline ("Encoded tokens: " ^ term_to_string toks) in
+    let ast = App (e_parse, toks) |> normalize_get 10000 in
+    let _ = print_endline ("AST: " ^ term_to_string ast) in
+    let res = App (e_eval, ast) |> normalize_get 1000 in
+    let _ = print_endline ("Evaluation: " ^ term_to_string res) in
+    loop ()
 
 let _ = loop ()

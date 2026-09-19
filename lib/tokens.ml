@@ -23,8 +23,7 @@ let string_of_tok : tok -> string = function
   | T_nat n -> Printf.sprintf "T_NAT(%d)" n
 
 let string_of_toks (toks : tok list) : string =
-  Printf.sprintf "[%s]"
-    (String.concat "; " (List.map string_of_tok toks))
+  Printf.sprintf "[%s]" (String.concat "; " (List.map string_of_tok toks))
 
 let encode_tok : tok -> term = function
   | T_lpar -> Lam (Lam (Lam (Lam (Var 3))))
