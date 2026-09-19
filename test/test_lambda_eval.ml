@@ -1,8 +1,7 @@
 open Lambda_eval.Encode
 open Lambda_eval.Eval
-open Lambda_eval.Lambda_list
+open Lambda_eval.List
 open Lambda_eval.Tokens
-open Lambda_eval.Utils
 
 let rec equal t1 t2 =
   match (t1, t2) with

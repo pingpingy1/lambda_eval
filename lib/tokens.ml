@@ -1,7 +1,8 @@
 open Term
 open Nat
-open Lambda_list
+open List
 open Pair
+open Encode 
 
 (* ***********************************************
  * We define the following tokens for the concrete syntax of lambda terms:
@@ -20,7 +21,7 @@ let encode_tok : tok -> term = function
   | T_lpar -> Lam (Lam (Lam (Lam (Var 3))))
   | T_rpar -> Lam (Lam (Lam (Lam (Var 2))))
   | T_lam -> Lam (Lam (Lam (Lam (Var 1))))
-  | T_nat n -> Lam (Lam (Lam (Lam (App (Var 0, encode n)))))
+  | T_nat n -> Lam (Lam (Lam (Lam (App (Var 0, encode_nat n)))))
 
 let rec encode_toks : tok list -> term = function
   | [] -> nil
@@ -49,23 +50,6 @@ let rec encode_toks : tok list -> term = function
  * ***********************************************
  *)
 
-(* Y-combinator: Y = λ f. (λ x. f (x x)) (λ x. f(x x)) *)
-let y_comb : term =
-  Lam
-    (App
-       ( Lam (App (Var 1, App (Var 0, Var 0))),
-         Lam (App (Var 1, App (Var 0, Var 0))) ))
-
-(* c_var n = λ a b c. a n *)
-let c_var (n : term) : term = App (Lam (Lam (Lam (Lam (App (Var 2, Var 3))))), n)
-
-(* c_lam t = λ a b c. b t *)
-let c_lam (t : term) : term = App (Lam (Lam (Lam (Lam (App (Var 1, Var 3))))), t)
-
-(* c_app f a = λ a b c. c f a *)
-let c_app (f : term) (a : term) : term =
-  App (App (Lam (Lam (Lam (Lam (Lam (App (App (Var 0, Var 4), Var 3)))))), f), a)
-
 (* lam_case = λ self rest.
  *   (λ res. pair (c_lam (fst res)) (tail (snd res)))
  *   (self rest)
@@ -77,7 +61,7 @@ let lam_case : term =
        ((* rest *)
           App
           ( (* λ res. pair (c_lam (fst res)) (tail (snd res)) *)
-            Lam (pair (c_lam (fst (Var 0))) (tail (snd (Var 0)))),
+            Lam (pair (c_lam (lFst (Var 0))) (tail (lSnd (Var 0)))),
             (* self rest *)
             App (Var 1, Var 0) )))
 
@@ -104,10 +88,10 @@ let app_case : term =
                         ( Lam
                             ((* res2 *)
                              pair
-                               (c_app (fst (Var 2)) (fst (Var 0)))
-                               (tail (snd (Var 0)))),
+                               (c_app (lFst (Var 2)) (lFst (Var 0)))
+                               (tail (lSnd (Var 0)))),
                           App (Var 3, Var 0) (* (self rest') *) )),
-                   snd (Var 0) (* (snd res1) *) )),
+                   lSnd (Var 0) (* (snd res1) *) )),
             App (Var 1, Var 0) (* (self rest) *) )))
 
 (* lpar_case = λ self rest1.
@@ -190,4 +174,4 @@ let parse_arch : term =
                         ))) ),
             nil )))
 
-let e_parse : term = Lam (fst (App (App (y_comb, parse_arch), Var 0)))
+let e_parse : term = Lam (lFst (App (App (y_comb, parse_arch), Var 0)))

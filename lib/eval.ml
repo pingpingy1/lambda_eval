@@ -1,5 +1,5 @@
 open Term
-open Lambda_list
+open List
 
 (* **************************************
  * When evaluating a lambda representation,
@@ -12,13 +12,6 @@ open Lambda_list
  * - Application: Recursively evaluate the function and the argument
  * **************************************
  *)
-
-(* Y-combinator: Y = λ f. (λ x. f (x x)) (λ x. f(x x)) *)
-let y_comb =
-  Lam
-    (App
-       ( Lam (App (Var 1, App (Var 0, Var 0))),
-         Lam (App (Var 1, App (Var 0, Var 0))) ))
 
 (* lookup lst n = n (head lst) (λ n'. lookup (tail lst) n') *)
 let lookup : term =
