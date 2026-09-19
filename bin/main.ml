@@ -25,7 +25,21 @@ let _ = print_description
 let _ = test_term (Lam (Var 0))
 let _ = test_term (App (Lam (Var 0), Lam (Var 0)))
 
-let toks = encode_toks [T_lpar; T_lpar; T_lam; T_nat 0; T_rpar; T_lpar; T_lam; T_nat 0; T_rpar; T_rpar]
+let toks =
+  encode_toks
+    [
+      T_lpar;
+      T_lpar;
+      T_lam;
+      T_nat 0;
+      T_rpar;
+      T_lpar;
+      T_lam;
+      T_nat 0;
+      T_rpar;
+      T_rpar;
+    ]
+
 let _ = print_endline ("Encoded tokens: " ^ term_to_string toks)
 let ast = App (e_parse, toks) |> normalize 10000
 let _ = print_endline ("AST: " ^ term_to_string ast)

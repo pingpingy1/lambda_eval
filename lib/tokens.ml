@@ -69,7 +69,7 @@ let c_app (f : term) (a : term) : term =
 (* lam_case = λ self rest.
  *   (λ res. pair (c_lam (fst res)) (tail (snd res)))
  *   (self rest)
- * *)
+ *)
 let lam_case : term =
   Lam
     ((* self *)
@@ -127,7 +127,8 @@ let lpar_case : term =
        ((* rest1 *)
           App
           ( App
-              ( Var 0, (* rest1 *)
+              ( Var 0,
+                (* rest1 *)
                 Lam
                   ((* tok2 *)
                      Lam
@@ -136,7 +137,8 @@ let lpar_case : term =
                         ( App
                             ( App
                                 ( App
-                                    ( Var 1, (* tok2 *)
+                                    ( Var 1,
+                                      (* tok2 *)
                                       App (App (app_case, Var 3), Var 2)
                                       (* app_case self rest1 *) ),
                                   nil ),
@@ -165,7 +167,8 @@ let parse_arch : term =
        ((* toks *)
           App
           ( App
-              ( Var 0, (* toks *)
+              ( Var 0,
+                (* toks *)
                 Lam
                   ((* tok1 *)
                      Lam
@@ -174,7 +177,8 @@ let parse_arch : term =
                         ( App
                             ( App
                                 ( App
-                                    ( Var 1, (* tok1 *)
+                                    ( Var 1,
+                                      (* tok1 *)
                                       App (App (lpar_case, Var 3), tail (Var 2))
                                       (* lpar_case self (tail toks) *) ),
                                   nil ),
@@ -182,7 +186,8 @@ let parse_arch : term =
                           Lam
                             ((* n *)
                              pair (c_var (Var 0))
-                               (tail (Var 3)) (* pair (c_var n) (tail toks) *)) ))) ),
+                               (tail (Var 3)) (* pair (c_var n) (tail toks) *))
+                        ))) ),
             nil )))
 
 let e_parse : term = Lam (fst (App (App (y_comb, parse_arch), Var 0)))
