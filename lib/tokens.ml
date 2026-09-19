@@ -16,6 +16,16 @@ open Encode
  *)
 type tok = T_lpar | T_rpar | T_lam | T_nat of int
 
+let string_of_tok : tok -> string = function
+  | T_lpar -> "T_LPAR"
+  | T_rpar -> "T_RPAR"
+  | T_lam -> "T_LAM"
+  | T_nat n -> Printf.sprintf "T_NAT(%d)" n
+
+let string_of_toks (toks : tok list) : string =
+  Printf.sprintf "[%s]"
+    (String.concat "; " (List.map string_of_tok toks))
+
 let encode_tok : tok -> term = function
   | T_lpar -> Lam (Lam (Lam (Lam (Var 3))))
   | T_rpar -> Lam (Lam (Lam (Lam (Var 2))))

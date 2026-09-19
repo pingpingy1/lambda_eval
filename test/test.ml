@@ -1,8 +1,4 @@
-open Lambda_eval.Term
-open Lambda_eval.Encode
-open Lambda_eval.Eval
-open Lambda_eval.Data
-open Lambda_eval.Tokens
+open Lambda_eval
 
 let rec equal t1 t2 =
   match (t1, t2) with

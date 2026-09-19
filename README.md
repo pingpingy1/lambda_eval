@@ -1,5 +1,12 @@
 # Lambda AST Encoding and Evaluation
 
+A self-interpreter for untyped $\lambda$-calculus written in OCaml, comprising:
+1. **De Bruijn Representation:** Canonical representations of $\lambda$-terms without variable capture.
+2. **Scott Encodings:** Algebraic data types (terms, lists, naturals, pairs, and tokens) mapped directly into closed $\lambda$-combinators.
+3. **Internal Parser Combinator (`e_parse`):** A recursive-descent parser defined **inside pure $\lambda$-calculus** that consumes Scott-encoded token streams and constructs the syntax tree combinator.
+4. **Self-Interpreter (`e_eval`):** A self-evaluator $E$ that executes an AST representation within the calculus itself ($E \, \ulcorner M \urcorner \rightarrow_\beta M$).
+5. **Interactive REPL:** A front-end interface for evaluating expressions typed in keyboard-friendly notation.
+
 As evaluation of lambda expressions is itself a computational task,
 it stands to reason that this can also be expressed as a lambda term.
 This project encodes the abstract syntax tree of lambda expressions as other lambda terms,
@@ -23,26 +30,23 @@ Lam (Var 0)
 ```text
 lib/
 ├── term.ml                 Lambda-term type and de Bruijn shifting
-├── encode.ml               Scott/Mogensen-Scott AST encoding
+├── data.ml                 Useful data structures: naturals, pairs, lists
+├── tokens.ml               Tokens and their Scott encoding
+├── encode.ml               Mogensen-Scott AST encoding
 ├── eval.ml                 Beta reduction and encoded evaluator
-├── utils.ml                Shared term pretty-printing
-└── data/
-    ├── nat.ml              Church natural-number encoding
-    └── lambda_list.ml      Church list operations
-
-bin/main.ml                 Executable examples
-test/test_lambda_eval.ml    Round-trip tests
+└── lexer.ml                Lexer for user inputs
 ```
 
 ## Building and running
 
 ```sh
 dune build
-dune exec bin/main.exe
+dune exec lambda_eval
 ```
 
-The example executable prints the original term, its encoded representation,
-and the result after evaluating the representation.
+This executes a parse&evaluate example, and starts a REPL that takes user-input programs.
+You may use either λ or a backslash \ for function definition.
+***You must parenthesize every subexpression***, as the parser is very strict in its grammar.
 
 ## Testing
 
@@ -52,13 +56,6 @@ dune test
 
 The test compares the normal form of a given term against that of the
 evaluation of the representation of that form.
-
-The parser comparison cases use the lambda-level recursive parser and are
-substantially more expensive than the regular tests. Run them explicitly with:
-
-```sh
-RUN_PARSER_TESTS=1 dune test
-```
 
 ## Using the library
 
