@@ -1,3 +1,4 @@
+open Lambda_eval.Term
 open Lambda_eval.Encode
 open Lambda_eval.Eval
 open Lambda_eval.List
@@ -11,8 +12,8 @@ let rec equal t1 t2 =
   | _ -> false
 
 let round_trip name t =
-  let result = normalize 1000 (App (e_eval, encode t)) in
-  let expected = normalize 1000 t in
+  let result = normalize_get 1000 (App (e_eval, encode t)) in
+  let expected = normalize_get 1000 t in
   if equal result expected then print_endline ("Test: " ^ name ^ " success!")
   else
     failwith
@@ -22,12 +23,12 @@ let pair_fst = Lam (App (Var 0, Lam (Lam (Var 1))))
 
 let evaluate_parsed_tokens tokens =
   let parsed = App (e_parse, encode_toks tokens) in
-  let encoded_ast = normalize 10000 (App (pair_fst, parsed)) in
-  normalize 10000 (App (e_eval, encoded_ast))
+  let encoded_ast = normalize_get 10000 (App (pair_fst, parsed)) in
+  normalize_get 10000 (App (e_eval, encoded_ast))
 
 let compare_evaluations name term tokens =
-  let expected = normalize 10000 term in
-  let encoded = normalize 10000 (App (e_eval, encode term)) in
+  let expected = normalize_get 10000 term in
+  let encoded = normalize_get 10000 (App (e_eval, encode term)) in
   let parsed = evaluate_parsed_tokens tokens in
   if equal expected encoded && equal encoded parsed then
     print_endline ("Test: " ^ name ^ " success!")
@@ -39,8 +40,8 @@ let compare_evaluations name term tokens =
 
 let list_laws () =
   let values = cons (Var 10) (cons (Var 20) nil) in
-  let first = normalize 1000 (head values) in
-  let second = normalize 1000 (head (tail values)) in
+  let first = normalize_get 1000 (head values) in
+  let second = normalize_get 1000 (head (tail values)) in
   if not (equal first (Var 10)) then failwith "head/cons law failed";
   if not (equal second (Var 20)) then failwith "head/tail law failed"
 
