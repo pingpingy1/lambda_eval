@@ -1,7 +1,7 @@
 open Lambda_eval.Term
 open Lambda_eval.Encode
 open Lambda_eval.Eval
-open Lambda_eval.List
+open Lambda_eval.Data
 open Lambda_eval.Tokens
 
 let rec equal t1 t2 =
@@ -24,7 +24,11 @@ let pair_fst = Lam (App (Var 0, Lam (Lam (Var 1))))
 let compare_evaluations name term tokens =
   let expected = normalize_get 1000 term in
   let encoded = normalize_get 1000 (App (e_eval, encode term)) in
-  let parsed = tokens |> encode_toks |> normalize_get 1000 |> fun t -> App (e_parse, t) |> normalize_get 10000 |> fun t -> App (e_eval, t) |> normalize_get 1000 in
+  let parsed =
+    tokens |> encode_toks |> normalize_get 1000 |> fun t ->
+    App (e_parse, t) |> normalize_get 10000 |> fun t ->
+    App (e_eval, t) |> normalize_get 1000
+  in
   if equal expected encoded && equal encoded parsed then
     print_endline ("Test: " ^ name ^ " success!")
   else

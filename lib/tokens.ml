@@ -1,8 +1,7 @@
 open Term
-open Nat
-open List
+open Data
 open Pair
-open Encode 
+open Encode
 
 (* ***********************************************
  * We define the following tokens for the concrete syntax of lambda terms:

@@ -2,6 +2,7 @@ open Lambda_eval.Term
 open Lambda_eval.Encode
 open Lambda_eval.Eval
 open Lambda_eval.Tokens
+open Lambda_eval.Lexer
 
 let print_description : unit =
   print_endline
@@ -15,9 +16,12 @@ let print_description : unit =
 
 let test_term (t : term) : unit =
   let repr : term = encode t in
-  let eval_repr : term = match normalize 1000 (App (e_eval, repr)) with
+  let eval_repr : term =
+    match normalize 1000 (App (e_eval, repr)) with
     | Normal t -> t
-    | Timeout t -> print_endline "Warning: Timeout after 1000 steps"; t
+    | Timeout t ->
+        print_endline "Warning: Timeout after 1000 steps";
+        t
   in
   print_endline ("Original:       " ^ term_to_string t);
   print_endline ("Representation: " ^ term_to_string repr);
@@ -43,6 +47,14 @@ let toks =
       T_rpar;
     ]
 
+let _ = print_endline ("Encoded tokens: " ^ term_to_string toks)
+let ast = App (e_parse, toks) |> normalize_get 10000
+let _ = print_endline ("AST: " ^ term_to_string ast)
+let res = App (e_eval, ast) |> normalize_get 1000
+let _ = print_endline ("Evaluation: " ^ term_to_string res)
+let _ = print_endline "Try it yourself!"
+let s = read_line ()
+let toks = tokenize s |> encode_toks
 let _ = print_endline ("Encoded tokens: " ^ term_to_string toks)
 let ast = App (e_parse, toks) |> normalize_get 10000
 let _ = print_endline ("AST: " ^ term_to_string ast)

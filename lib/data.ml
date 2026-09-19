@@ -1,7 +1,21 @@
 open Term
 
-(* Church encoding of lists. *)
+(* Data structures for other implementations *)
 
+(* Church encoding of natural numbers. *)
+let rec encode_nat (n : int) : term =
+  if n < 0 then invalid_arg "Nat.encode: negative number"
+  else if n = 0 then Lam (Lam (Var 1))
+  else Lam (Lam (App (Var 0, encode_nat (n - 1))))
+
+(* Church encoding of pairs *)
+let pair (f : term) (s : term) : term =
+  Lam (App (App (Var 0, shift 1 0 f), shift 1 0 s))
+
+let lFst (p : term) : term = App (p, Lam (Lam (Var 1)))
+let lSnd (p : term) : term = App (p, Lam (Lam (Var 0)))
+
+(* Church encoding of lists. *)
 (* nil = λ c n. n *)
 let nil : term = Lam (Lam (Var 0))
 

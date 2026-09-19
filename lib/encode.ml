@@ -1,5 +1,5 @@
 open Term
-open Nat
+open Data
 
 (* *********************************************************************
  * Scott encoding: generally applicable encoding of data types
@@ -33,4 +33,3 @@ let c_lam (t : term) : term = App (Lam (Lam (Lam (Lam (App (Var 1, Var 3))))), t
 (* c_app f a = λ a b c. c f a *)
 let c_app (f : term) (a : term) : term =
   App (App (Lam (Lam (Lam (Lam (Lam (App (App (Var 0, Var 4), Var 3)))))), f), a)
-

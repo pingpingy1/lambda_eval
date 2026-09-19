@@ -1,5 +1,5 @@
 open Term
-open List
+open Data
 
 (* **************************************
  * When evaluating a lambda representation,

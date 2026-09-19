@@ -46,7 +46,7 @@ type normal_form = Normal of term | Timeout of term
 let rec normalize (max_steps : int) (t : term) : normal_form =
   if max_steps <= 0 then Timeout t
   else
-    match eval_step t with 
+    match eval_step t with
     | Some t' -> normalize (max_steps - 1) t'
     | None -> Normal t
 
@@ -54,5 +54,7 @@ let rec normalize_get (max_steps : int) (t : term) : term =
   match normalize max_steps t with
   | Normal nf -> nf
   | Timeout nf ->
-    print_endline ("WARNING: Normalization timeout after " ^ string_of_int max_steps ^ " steps");
-    nf
+      print_endline
+        ("WARNING: Normalization timeout after " ^ string_of_int max_steps
+       ^ " steps");
+      nf
