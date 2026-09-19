@@ -21,15 +21,10 @@ let round_trip name t =
 
 let pair_fst = Lam (App (Var 0, Lam (Lam (Var 1))))
 
-let evaluate_parsed_tokens tokens =
-  let parsed = App (e_parse, encode_toks tokens) in
-  let encoded_ast = normalize_get 10000 (App (pair_fst, parsed)) in
-  normalize_get 10000 (App (e_eval, encoded_ast))
-
 let compare_evaluations name term tokens =
-  let expected = normalize_get 10000 term in
-  let encoded = normalize_get 10000 (App (e_eval, encode term)) in
-  let parsed = evaluate_parsed_tokens tokens in
+  let expected = normalize_get 1000 term in
+  let encoded = normalize_get 1000 (App (e_eval, encode term)) in
+  let parsed = tokens |> encode_toks |> normalize_get 1000 |> fun t -> App (e_parse, t) |> normalize_get 10000 |> fun t -> App (e_eval, t) |> normalize_get 1000 in
   if equal expected encoded && equal encoded parsed then
     print_endline ("Test: " ^ name ^ " success!")
   else
