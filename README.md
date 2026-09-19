@@ -60,14 +60,13 @@ evaluation of the representation of that form.
 ## Using the library
 
 ```ocaml
-open Lambda_eval.Term
-open Lambda_eval.Encode
-open Lambda_eval.Eval
-open Lambda_eval.Utils
+open Lambda_eval
 
-let identity = Lam (Var 0)
-let encoded = encode identity
-let evaluated = normalize 1000 (App (e_eval, encoded))
+let identity = "(\. 0)"
+let toks = tokenize identity
+let toks_repr = encode_toks toks
+let ast = App (e_parse, toks_repr) |> normalize_get 1000
+let result = App (e_eval, ast) |> normalize_get 1000
 
 let () = print_endline (term_to_string evaluated)
 ```
