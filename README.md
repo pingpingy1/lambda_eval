@@ -10,7 +10,7 @@ A self-interpreter for untyped $\lambda$-calculus written in OCaml, comprising:
 As evaluation of lambda expressions is itself a computational task,
 it stands to reason that this can also be expressed as a lambda term.
 This project encodes the abstract syntax tree of lambda expressions as other lambda terms,
-using the so-called "Morgensen-Scott encoding".
+using the so-called "Mogensen-Scott encoding".
 An evaluator expression is defined such that, when applied to an encoding of a lambda term $M$,
 yields a term that is semantically equivalent to $M$.
 

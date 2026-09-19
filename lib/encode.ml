@@ -16,7 +16,7 @@ open Data
  * - Var (arity = 1) => encode (Var n) = λ a b c. a (encode_nat n)
  * - Lam (arity = 1) => encode (Lam t) = λ a b c. b (encode t)
  * - App (arity = 2) => encode (App (t1, t2)) = λ a b c. c (encode t1) (encode t2)
- * Application of Scott encoding to lambda terms is also called the "Morgensen-Scott encoding"
+ * Application of Scott encoding to lambda terms is also called the "Mogensen-Scott encoding"
  * *********************************************************************
  *)
 let rec encode : term -> term = function
