@@ -1,6 +1,7 @@
 open Lambda_eval.Encode
 open Lambda_eval.Eval
 open Lambda_eval.Utils
+open Lambda_eval.Tokens
 
 let print_description : unit =
   print_endline
@@ -23,3 +24,10 @@ let test_term (t : term) : unit =
 let _ = print_description
 let _ = test_term (Lam (Var 0))
 let _ = test_term (App (Lam (Var 0), Lam (Var 0)))
+
+let toks = encode_toks [T_lpar; T_lpar; T_lam; T_nat 0; T_rpar; T_lpar; T_lam; T_nat 0; T_rpar; T_rpar]
+let _ = print_endline ("Encoded tokens: " ^ term_to_string toks)
+let ast = App (e_parse, toks) |> normalize 10000
+let _ = print_endline ("AST: " ^ term_to_string ast)
+let res = App (e_eval, ast) |> normalize 1000000
+let _ = print_endline ("Evaluation: " ^ term_to_string res)

@@ -53,6 +53,13 @@ dune test
 The test compares the normal form of a given term against that of the
 evaluation of the representation of that form.
 
+The parser comparison cases use the lambda-level recursive parser and are
+substantially more expensive than the regular tests. Run them explicitly with:
+
+```sh
+RUN_PARSER_TESTS=1 dune test
+```
+
 ## Using the library
 
 ```ocaml

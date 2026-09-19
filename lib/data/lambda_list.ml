@@ -22,7 +22,7 @@ let tail (l : term) : term =
               ( App
                   ( shift 2 0 l,
                     Lam
-                      (Lam (Lam (App (App (Var 0, Var 2), App (Var 1, Var 5)))))
+                      (Lam (Lam (App (App (Var 0, Var 2), App (Var 1, Var 4)))))
                   ),
                 Lam (Var 1) ),
             Lam (Lam (Var 0)) )))
