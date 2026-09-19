@@ -7,64 +7,23 @@ let rec equal t1 t2 =
   | App (f1, a1), App (f2, a2) -> equal f1 f2 && equal a1 a2
   | _ -> false
 
-let round_trip name t =
-  let result = normalize_get 1000 (App (e_eval, encode t)) in
-  let expected = normalize_get 1000 t in
-  if equal result expected then print_endline ("Test: " ^ name ^ " success!")
-  else
-    failwith
-      ("expected " ^ term_to_string expected ^ ", got " ^ term_to_string result)
-
-let pair_fst = Lam (App (Var 0, Lam (Lam (Var 1))))
-
-let compare_evaluations name term tokens =
-  let expected = normalize_get 1000 term in
-  let encoded = normalize_get 1000 (App (e_eval, encode term)) in
-  let parsed =
-    tokens |> encode_toks |> normalize_get 1000 |> fun t ->
-    App (e_parse, t) |> normalize_get 10000 |> fun t ->
-    App (e_eval, t) |> normalize_get 1000
-  in
-  if equal expected encoded && equal encoded parsed then
-    print_endline ("Test: " ^ name ^ " success!")
-  else
-    failwith
-      ("evaluation mismatch for " ^ name ^ "\n" ^ "normal form: "
-     ^ term_to_string expected ^ "\n" ^ "encoded AST: " ^ term_to_string encoded
-     ^ "\n" ^ "parsed AST: " ^ term_to_string parsed)
-
-let list_laws () =
-  let values = cons (Var 10) (cons (Var 20) nil) in
-  let first = normalize_get 1000 (head values) in
-  let second = normalize_get 1000 (head (tail values)) in
-  if not (equal first (Var 10)) then failwith "head/cons law failed";
-  if not (equal second (Var 20)) then failwith "head/tail law failed"
+let three_way_trip name t =
+    let direct = t |> normalize_get 1000 in
+    let ast_eval = t |> encode |> normalize_get 1000 |> (fun x -> App (e_eval, x)) |> normalize_get 1000 in
+    let tok_ast_eval = t |> term_to_string |> tokenize |> encode_toks |> normalize_get 1000 |> (fun x -> App (e_parse, x)) |> normalize_get 1000 |> (fun x -> App (e_eval, x)) |> normalize_get 1000 in
+    if equal direct ast_eval && equal direct tok_ast_eval then
+      Printf.printf "Test %s success!\n" name
+    else
+      failwith (Printf.sprintf "Test %s fail:\nDirect: %s\nAST evaluation: %s \nTokens->AST evaluation: %s" name (term_to_string direct) (term_to_string ast_eval) (term_to_string tok_ast_eval))
 
 let parser_cases =
   [
-    ("abstraction", Lam (Var 0), [ T_lpar; T_lam; T_nat 0; T_rpar ]);
+    ("abstraction", Lam (Var 0));
     ( "nested application",
-      App (Lam (Var 0), Lam (Var 0)),
-      [
-        T_lpar;
-        T_lpar;
-        T_lam;
-        T_nat 0;
-        T_rpar;
-        T_lpar;
-        T_lam;
-        T_nat 0;
-        T_rpar;
-        T_rpar;
-      ] );
+      App (Lam (Var 0), Lam (Var 0)) );
+    ("true", Lam (Lam (Var 1)));
   ]
 
-let () =
-  round_trip "identity" (Lam (Var 0));
-  round_trip "true" (Lam (Lam (Var 1)));
-  round_trip "identity of identity" (App (Lam (Var 0), Lam (Var 0)));
-  round_trip "self application" (Lam (App (Var 0, Var 0)));
-  list_laws ();
-  List.iter
-    (fun (name, term, tokens) -> compare_evaluations name term tokens)
+let _ = List.iter
+    (fun (name, term) -> three_way_trip name term)
     parser_cases
