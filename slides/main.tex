@@ -16,6 +16,9 @@
   breaklines=true
 }
 
+\newcommand{\concsyn}[1]{\langle\texttt{#1}\rangle}
+
+
 \title[Lambda parsing \& evaluation]{Pretentious Self-Parsing and Self-Evaluation of $\lambda$-Calculus}
 \author{Heewon Lee}
 \institute{School of Computing, KAIST}
@@ -36,6 +39,108 @@
     \vspace{2em}
     \centering
     \onslide<4-> $\therefore$ Goal: Parse and evaluate $\lambda$-expressions using $\lambda$-calculus!
+\end{frame}
+
+% ==============================
+\begin{frame}{Concrete and Abstract Syntax}
+    \begin{columns}
+    \column{0.48\textwidth}
+        \textbf{Concrete Syntax}
+        \onslide<2->{
+        \begin{align*}
+            \concsyn{term}
+            ::=&\; \concsyn{nat} & (\text{Variable}) \\
+            \mid&\; (\lambda. \concsyn{term}) & (\text{Function}) \\
+            \mid&\; ((\concsyn{term})\; (\concsyn{term})) & (\text{Application})
+        \end{align*}
+        }
+    \column{0.48\textwidth}
+        \textbf{Abstract Syntax}
+        \onslide<3->{
+        \begin{align*}
+            t
+            ::=&\; \text{Var}(n) & (\text{Variable}) \\
+            \mid&\; \text{Lam}(t) & (\text{Function}) \\
+            \mid&\; \text{App}(t, t) & (\text{Application})
+        \end{align*}
+        }
+    \end{columns}
+
+    \vspace{2em}
+    \centering
+    \onslide<4->{
+    e.g.) ``($\lambda$. 0)''
+    $\rightarrow$ \texttt{[LPAR; LAM; NAT(0); LPAR]}
+    $\rightarrow$ $\lambda$-repr. of tokens
+    $\rightarrow$ $\lambda$-repr. of AST
+    $\rightarrow$ $\lambda$-expr.
+    }
+
+    \onslide<6-> {
+    \begin{enumerate}
+        \item Represent each token
+        \item Represent each AST constructor
+        \item Parser \texttt{e\_parse} from token list to AST
+        \item Evaluator \texttt{e\_eval} from AST to $\lambda$-expression
+    \end{enumerate}
+    }
+\end{frame}
+
+% ==============================
+\begin{frame}{Theory: Algebraic Data Types and Scott Encoding}
+    \begin{itemize}
+        \item Algebraic data types (ADTs): Sum, product, and recursive types
+        \item<2-> Scott encoding: General encoding of ADTs
+    \end{itemize}
+
+    \begin{columns}
+    \column{0.48\textwidth}
+    \onslide<3-> {
+    \begin{table}[]
+        \begin{tabular}{ll}
+            \textbf{Constructor} & \textbf{Scott Encoding} \\
+            $\text{Var}(n)$ & $\lambda v\, l\, a.\; v\; n$ \\
+            $\text{Lam}(t)$ & $\lambda v\, l\, a.\; l\; \mathbf{t}$ \\
+            $\text{App}(t_1, t_2)$ & $\lambda v\, l\, a.\; a\; \mathbf{t_1}\; \mathbf{t_2}$ \\
+            \hline
+            \texttt{LPAR}   & $\lambda l\, r\, a\, v.\; l$ \\
+            \texttt{RPAR}   & $\lambda l\, r\, a\, v.\; r$ \\
+            \texttt{LAM}    & $\lambda l\, r\, a\, v.\; a$ \\
+            \texttt{NAT(n)} & $\lambda l\, r\, a\, v.\; v\; n$ \\
+        \end{tabular}
+    \end{table}
+    }
+
+    \column{0.48\textwidth}
+    \onslide<4-> {
+    \textbf{Case statement}
+    \[
+        t\; fv\; fl\; fa = \begin{cases}
+            fv\; n         & (t = \text{Var}(n)) \\
+            fl\; t'        & (t = \text{Lam}(t')) \\
+            fa\; t_1\; t_2 & (t = \text{App}(t_1, t_2)
+        \end{cases}
+    \]
+    }
+    \end{columns}
+
+    \onslide<5-> {
+    \begin{exampleblock}{Example: $\lambda x. \lambda y. x$}
+        \[
+            \lambda v\, l\, a.\; l\; \onslide<6-> {
+                (\lambda v\, l\, a.\; l\; \onslide<7-> {
+                    (\lambda v\, l\, a.\; a\; \onslide <8-> {
+                        (\lambda s\, z.\; s\; z)
+                    })
+                })
+            }
+        \]
+    \end{exampleblock}
+    }
+\end{frame}
+
+% ==============================
+\begin{frame}{Theory: Church vs. Scott Encoding}
 \end{frame}
 
 \end{document}
