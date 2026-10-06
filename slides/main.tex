@@ -1,0 +1,41 @@
+\documentclass[aspectratio=169, 10pt]{beamer}
+\usetheme{Madrid}
+\usecolortheme{dolphin}
+\setbeamertemplate{navigation symbols}{}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{listings}
+
+\lstset{
+  basicstyle=\ttfamily\scriptsize,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{gray},
+  stringstyle=\color{red},
+  frame=single,
+  breaklines=true
+}
+
+\title[Lambda parsing \& evaluation]{Pretentious Self-Parsing and Self-Evaluation of $\lambda$-Calculus}
+\author{Heewon Lee}
+\institute{School of Computing, KAIST}
+\date{October 15, 2026}
+
+\begin{document}
+
+\frame{\titlepage}
+
+% ==============================
+\begin{frame}{Motivation}
+    \begin{itemize}
+        \item Reading strings of $\lambda$-expressions and evaluating them is itself a computational task.
+        \item<2-> Church-Turing thesis: Any computatable task can be performed by a $\lambda$-expression.
+        \item <3-> $\Rightarrow$ Lambda evaluation should also be possible with a $\lambda$-expression!
+    \end{itemize}
+
+    \vspace{2em}
+    \centering
+    \onslide<4-> $\therefore$ Goal: Parse and evaluate $\lambda$-expressions using $\lambda$-calculus!
+\end{frame}
+
+\end{document}
