@@ -3,6 +3,7 @@
 \usecolortheme{dolphin}
 \setbeamertemplate{navigation symbols}{}
 
+\usepackage{kotex}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{listings}
@@ -18,10 +19,9 @@
 
 \newcommand{\concsyn}[1]{\langle\texttt{#1}\rangle}
 
-
 \title[Lambda parsing \& evaluation]{Pretentious Self-Parsing and Self-Evaluation of $\lambda$-Calculus}
 \author{Heewon Lee}
-\institute{School of Computing, KAIST}
+\institute{Quantum Many Body Theory Group}
 \date{October 15, 2026}
 
 \begin{document}
@@ -76,7 +76,7 @@
     $\rightarrow$ $\lambda$-expr.
     }
 
-    \onslide<6-> {
+    \onslide<5-> {
     \begin{enumerate}
         \item Represent each token
         \item Represent each AST constructor
@@ -89,7 +89,7 @@
 % ==============================
 \begin{frame}{Theory: Algebraic Data Types and Scott Encoding}
     \begin{itemize}
-        \item Algebraic data types (ADTs): Sum, product, and recursive types
+        \item Algebraic data type (ADT, 조립식 타입): Sum, product, and recursive types
         \item<2-> Scott encoding: General encoding of ADTs
     \end{itemize}
 
@@ -100,8 +100,8 @@
         \begin{tabular}{ll}
             \textbf{Constructor} & \textbf{Scott Encoding} \\
             $\text{Var}(n)$ & $\lambda v\, l\, a.\; v\; n$ \\
-            $\text{Lam}(t)$ & $\lambda v\, l\, a.\; l\; \mathbf{t}$ \\
-            $\text{App}(t_1, t_2)$ & $\lambda v\, l\, a.\; a\; \mathbf{t_1}\; \mathbf{t_2}$ \\
+            $\text{Lam}(t)$ & $\lambda v\, l\, a.\; l\; t$ \\
+            $\text{App}(t_1, t_2)$ & $\lambda v\, l\, a.\; a\; t_1\; t_2$ \\
             \hline
             \texttt{LPAR}   & $\lambda l\, r\, a\, v.\; l$ \\
             \texttt{RPAR}   & $\lambda l\, r\, a\, v.\; r$ \\
@@ -141,6 +141,63 @@
 
 % ==============================
 \begin{frame}{Theory: Church vs. Scott Encoding}
+    \begin{itemize}
+        \item General Church encoding for ADTs: Consume with fold operations
+        \item $\leftrightarrow$ Scott encoding: match expressions
+    \end{itemize}
+
+    \begin{table}[]
+        \centering
+        \small
+        \begin{tabular}{@{}lll@{}}
+            \onslide<2->{
+            \textbf{Constructor} & \textbf{Church} & \textbf{Scott} \\
+            $0$ & $\lambda s\, z.\; z$ & $\lambda s\, z.\; z$ \\
+            $\texttt{succ } n$ & $\lambda s\, z.\; s\; z$ & $\lambda s\, z.\; s\; (\lambda s\, z.\; z)$ \\
+            \hline}\onslide<3->{%
+            \noindent%
+            $\text{Var}(n)$ & $\lambda v\, l\, a.\; v\; n$ & $\lambda v\, l\, a.\; v\; n$ \\
+            $\text{Lam}(t)$ & $\lambda v\, l\, a.\; l\; (t\; v\; l\; a)$ & $\lambda v\, l\, a.\; l\; t$ \\
+            $\text{App}(t_1, t_2)$ & $\lambda v\, l\, a.\; a\; (t_1\; v\; l\; a)\; (t_2\; v\, l\; a)$ & $\lambda v\, l\, a.\; a\; t_1\; t_2$ \\
+            }
+        \end{tabular}
+    \end{table}
+
+    \begin{itemize}
+        \item<4-> Church: Top-level $v, l, a$ are passed to every subexpression (Bottom-up)
+        \item<4-> Scott: Top-level $v, l, a$ operate on the immediate subexpressions directly (Top-down)
+        \item<5-> For parsing and evaluating, \textbf{Scott encoding} is more suitable!
+    \end{itemize}
+\end{frame}
+
+% ================================
+\begin{frame}{Self-Interpreter \texttt{e\_eval}}
+    \begin{itemize}
+        \item Suppose $\ulcorner M \urcorner$ is the AST encoding of a $\lambda$-expression $M$.
+        \item<2-> Interpreter \texttt{e\_eval} must satisfy $\text{App} (\texttt{e\_eval}, \ulcorner M \urcorner) \simeq_\beta M$.
+    \end{itemize}
+    \begin{align*}
+        \onslide<3->{
+        \texttt{e\_eval}
+        &= \lambda\; ast.\; \texttt{eval\_comb} \; ast \; \texttt{nil}
+        \qquad (\text{List of variables that have been defined})\\
+        }
+        \onslide<4->{
+        \texttt{eval\_comb}
+        &= \lambda\; ast\, lst.\; ast \\
+        &\qquad (\lambda n.\; \texttt{lookup}\; lst\; n)
+            \qquad\qquad\qquad\qquad\qquad\qquad\quad\;\; (\text{Var: Lookup})\\
+        &\qquad (\lambda t.\; \texttt{eval\_comb}\; t\; (\texttt{cons}\; lst\; (\text{Var}\; 0)))
+            \qquad\qquad\qquad (\text{Lam: Define variable, evaluate}) \\
+        &\qquad (\lambda t_1\, t_2.\; (\texttt{eval\_comb}\; t_1\; lst)\; (\texttt{eval\_comb}\; t_2\; lst))
+            \qquad (\text{App: Evaluate each, apply})
+        }
+    \end{align*}
+    \begin{itemize}
+        \item<5-> \texttt{cons}: Push every index up by one
+        \item<5-> Recursion via $Y$-combinator
+    \end{itemize}
+
 \end{frame}
 
 \end{document}
