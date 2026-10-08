@@ -22,8 +22,8 @@
 \newcommand{\absrep}[1]{\ulcorner#1\urcorner}
 
 \title[Lambda parsing \& evaluation]{Pretentious Self-Parsing and Self-Evaluation of $\lambda$-Calculus}
-\author{Heewon Lee}
-\institute[{}]{Quantum Many Body Theory Group}
+\author{Heewon Lee (20210543)}
+\institute[{}]{School of Computing, KAIST}
 \date{October 15, 2026}
 
 \begin{document}
@@ -67,18 +67,8 @@
 \begin{frame}{Concrete and Abstract Syntax}
     \begin{columns}
     \column{0.48\textwidth}
-        \textbf{Concrete Syntax}
         \onslide<2->{
-        \begin{align*}
-            \concsyn{term}
-            ::=&\; \concsyn{nat} & (\text{Variable}) \\
-            \mid&\; (\lambda. \concsyn{term}) & (\text{Function}) \\
-            \mid&\; ((\concsyn{term})\; (\concsyn{term})) & (\text{Application})
-        \end{align*}
-        }
-    \column{0.48\textwidth}
         \textbf{Abstract Syntax}
-        \onslide<3->{
         \begin{align*}
             t
             ::=&\; \text{Var}(n) & (\text{Variable}) \\
@@ -86,7 +76,19 @@
             \mid&\; \text{App}(t, t) & (\text{Application})
         \end{align*}
         }
+        \column{0.48\textwidth}
+        \onslide<3->{
+        \textbf{Concrete Syntax}
+        \begin{align*}
+            \concsyn{term}
+            ::=&\; \concsyn{nat} & (\text{Variable}) \\
+            \mid&\; (\lambda.\; \concsyn{term}) & (\text{Function}) \\
+            \mid&\; ((\concsyn{term})\; (\concsyn{term})) & (\text{Application})
+        \end{align*}
+        }
     \end{columns}
+    \onslide<2->{(De Bruijn index: Var(0) = Closest variable, Var(1) = Next closest, ...) \\
+    e.g.) $\lambda x.\; \lambda y.\; x\; y = \lambda.\; \lambda.\; 1 0$}
 
     \onslide<4-> {
     \begin{enumerate}
@@ -109,20 +111,22 @@
     \column{0.48\textwidth}
     \begin{table}[]
         \begin{tabular}{rcl}
+            \onslide<3-> {
             \textbf{Constructor} & & \textbf{Scott Encoding} \\
             $\concrep{\texttt{LPAR}}$       & = & $\lambda l\, r\, a\, v.\; l$ \\
             $\concrep{\texttt{RPAR}}$       & = & $\lambda l\, r\, a\, v.\; r$ \\
             $\concrep{\texttt{LAM}}$        & = & $\lambda l\, r\, a\, v.\; a$ \\
             $\concrep{\texttt{NAT(n)}}$     & = & $\lambda l\, r\, a\, v.\; v\; n$ \\
-            \hline
+            \hline} \onslide<4-> {%
             $\absrep{\text{Var}(n)}$        & = & $\lambda v\, l\, a.\; v\; n$ \\
             $\absrep{\text{Lam}(t)}$        & = & $\lambda v\, l\, a.\; l\; t$ \\
             $\absrep{\text{App}(t_1, t_2)}$ & = & $\lambda v\, l\, a.\; a\; t_1\; t_2$ \\
+            }
         \end{tabular}
     \end{table}
 
     \column{0.48\textwidth}
-    \onslide<4-> {
+    \onslide<5-> {
     \textbf{Case statement}
     \[
         t\; fv\; fl\; fa = \begin{cases}
@@ -134,13 +138,13 @@
     }
     \end{columns}
 
-    \onslide<5-> {
+    \onslide<6-> {
     \begin{exampleblock}{Example: $\lambda x.\; \lambda y.\; x = \lambda.\; \lambda.\; 1$}
         \[
-            \onslide<6-> {\lambda v\, l\, a.\; l\;
-                \onslide<7-> {(\lambda v\, l\, a.\; l\;
-                    \onslide<8-> {(\lambda v\, l\, a.\; v\;
-                        \onslide <9-> {(\lambda s\, z.\; s\; z)}
+            \onslide<7-> {\lambda v\, l\, a.\; l\;
+                \onslide<8-> {(\lambda v\, l\, a.\; l\;
+                    \onslide<9-> {(\lambda v\, l\, a.\; v\;
+                        \onslide <10-> {(\lambda s\, z.\; s\; z)}
                     )}
                 )}
             }
@@ -199,13 +203,13 @@
         &\qquad (\lambda n.\; \texttt{lookup}\; lst\; n)
             \qquad\qquad\qquad\qquad\qquad\qquad\quad\;\; (\text{Var: Lookup})\\
         &\qquad (\lambda t.\; \texttt{eval\_comb}\; t\; (\texttt{cons}\; lst\; (\text{Var}\; 0)))
-            \qquad\qquad\qquad (\text{Lam: Define variable, evaluate}) \\
+            \qquad\qquad\qquad (\text{Lam: Extend env, evaluate}) \\
         &\qquad (\lambda t_1\, t_2.\; (\texttt{eval\_comb}\; t_1\; lst)\; (\texttt{eval\_comb}\; t_2\; lst))
             \qquad (\text{App: Evaluate each, apply})
         }
     \end{align*}
     \begin{itemize}
-        \item<8-> \texttt{cons}: Push every index up by one
+        \item<7-> \texttt{cons}: Push every index up by one
         \item<8-> Recursion via $Y$-combinator
         \item<9-> $\Rightarrow\texttt{e\_eval}
             = \lambda\; ast.\; \texttt{eval\_comb} \; ast \; \texttt{nil}$
@@ -240,7 +244,7 @@
 % ================================
 \begin{frame}{Summary}
     \begin{itemize}
-        \item Pure $\lambda$-calculus is capable of reasoning about itself!
+        \item \textbf{Pure $\lambda$-calculus is capable of reasoning about itself!}
         \item<2-> Representing arbitrary constructors: Church vs. Scott encoding
         \item<3-> Parsing \& Evaluation: Relatively straightforward \texttt{match} expressions
     \end{itemize}
