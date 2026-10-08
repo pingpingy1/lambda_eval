@@ -88,7 +88,7 @@
         }
     \end{columns}
     \onslide<2->{(De Bruijn index: Var(0) = Closest variable, Var(1) = Next closest, ...) \\
-    e.g.) $\lambda x.\; \lambda y.\; x\; y = \lambda.\; \lambda.\; 1 0$}
+    e.g.) $\lambda x.\; \lambda y.\; x\; y = \lambda.\; \lambda.\; 1\; 0$}
 
     \onslide<4-> {
     \begin{enumerate}
@@ -119,8 +119,8 @@
             $\concrep{\texttt{NAT(n)}}$     & = & $\lambda l\, r\, a\, v.\; v\; n$ \\
             \hline} \onslide<4-> {%
             $\absrep{\text{Var}(n)}$        & = & $\lambda v\, l\, a.\; v\; n$ \\
-            $\absrep{\text{Lam}(t)}$        & = & $\lambda v\, l\, a.\; l\; t$ \\
-            $\absrep{\text{App}(t_1, t_2)}$ & = & $\lambda v\, l\, a.\; a\; t_1\; t_2$ \\
+            $\absrep{\text{Lam}(t)}$        & = & $\lambda v\, l\, a.\; l\; \absrep{t}$ \\
+            $\absrep{\text{App}(t_1, t_2)}$ & = & $\lambda v\, l\, a.\; a\; \absrep{t_1}\; \absrep{t_2}$ \\
             }
         \end{tabular}
     \end{table}
@@ -130,9 +130,9 @@
     \textbf{Case statement}
     \[
         t\; fv\; fl\; fa = \begin{cases}
-            fv\; n         & (t = \text{Var}(n)) \\
-            fl\; t'        & (t = \text{Lam}(t')) \\
-            fa\; t_1\; t_2 & (t = \text{App}(t_1, t_2))
+            fv\; n                           & (t = \absrep{\text{Var}(n)}) \\
+            fl\; \absrep{t'}                 & (t = \absrep{\text{Lam}(t')}) \\
+            fa\; \absrep{t_1}\; \absrep{t_2} & (t = \absrep{\text{App}(t_1, t_2)})
         \end{cases}
     \]
     }
@@ -202,8 +202,8 @@
         &= \lambda\; ast\, lst.\; ast \\
         &\qquad (\lambda n.\; \texttt{lookup}\; lst\; n)
             \qquad\qquad\qquad\qquad\qquad\qquad\quad\;\; (\text{Var: Lookup})\\
-        &\qquad (\lambda t.\; \texttt{eval\_comb}\; t\; (\texttt{cons}\; lst\; (\text{Var}\; 0)))
-            \qquad\qquad\qquad (\text{Lam: Extend env, evaluate}) \\
+        &\qquad (\lambda t.\; \lambda.\; \texttt{eval\_comb}\; t\; (\texttt{cons}\; (\text{Var}\; 0)\; lst))
+            \qquad\qquad\quad (\text{Lam: Extend env, evaluate}) \\
         &\qquad (\lambda t_1\, t_2.\; (\texttt{eval\_comb}\; t_1\; lst)\; (\texttt{eval\_comb}\; t_2\; lst))
             \qquad (\text{App: Evaluate each, apply})
         }
