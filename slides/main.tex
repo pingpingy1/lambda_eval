@@ -6,22 +6,24 @@
 \usepackage{kotex}
 \usepackage{amsmath}
 \usepackage{amssymb}
-\usepackage{listings}
-
-\lstset{
-  basicstyle=\ttfamily\scriptsize,
-  keywordstyle=\color{blue}\bfseries,
-  commentstyle=\color{gray},
-  stringstyle=\color{red},
-  frame=single,
-  breaklines=true
-}
+% \usepackage{listings}
+% 
+% \lstset{
+%   basicstyle=\ttfamily\scriptsize,
+%   keywordstyle=\color{blue}\bfseries,
+%   commentstyle=\color{gray},
+%   stringstyle=\color{red},
+%   frame=single,
+%   breaklines=true
+% }
 
 \newcommand{\concsyn}[1]{\langle\texttt{#1}\rangle}
+\newcommand{\concrep}[1]{\llcorner#1\lrcorner}
+\newcommand{\absrep}[1]{\ulcorner#1\urcorner}
 
 \title[Lambda parsing \& evaluation]{Pretentious Self-Parsing and Self-Evaluation of $\lambda$-Calculus}
 \author{Heewon Lee}
-\institute{Quantum Many Body Theory Group}
+\institute[{}]{Quantum Many Body Theory Group}
 \date{October 15, 2026}
 
 \begin{document}
@@ -39,6 +41,26 @@
     \vspace{2em}
     \centering
     \onslide<4-> $\therefore$ Goal: Parse and evaluate $\lambda$-expressions using $\lambda$-calculus!
+    
+    \begin{table}[]
+        \begin{tabular}{rcl}
+            \onslide<5->{String ``($\lambda$. 0)''} &
+            \onslide<6->{$\xrightarrow[(\text{OCaml})]{\text{Tokenize}}$ &
+                \texttt{[LPAR; LAM; NAT(0); RPAR]}} \\ &
+            \onslide<7->{$\xrightarrow[(\text{OCaml})]{\text{Encode tokens}}$ &
+                $\concrep{(\lambda.\; 0)}$} \\ &
+            \onslide<8->{$\xrightarrow{\text{Parser}}$ &
+                $\text{App} (
+                    \texttt{e\_parse},
+                    \concrep{(\lambda.\; 0)}
+                ) =_\beta \absrep{(\lambda.\; 0)}$} \\ &
+            \onslide<9-> {$\xrightarrow{\text{Evaluator}}$ &
+                $\text{App} (
+                    \texttt{e\_eval},
+                    \absrep{(\lambda.\; 0)}
+                ) =_\beta (\lambda.\; 0)$}
+        \end{tabular}
+    \end{table}
 \end{frame}
 
 % ==============================
@@ -66,17 +88,7 @@
         }
     \end{columns}
 
-    \vspace{2em}
-    \centering
-    \onslide<4->{
-    e.g.) ``($\lambda$. 0)''
-    $\rightarrow$ \texttt{[LPAR; LAM; NAT(0); LPAR]}
-    $\rightarrow$ $\lambda$-repr. of tokens
-    $\rightarrow$ $\lambda$-repr. of AST
-    $\rightarrow$ $\lambda$-expr.
-    }
-
-    \onslide<5-> {
+    \onslide<4-> {
     \begin{enumerate}
         \item Represent each token
         \item Represent each AST constructor
@@ -95,21 +107,19 @@
 
     \begin{columns}
     \column{0.48\textwidth}
-    \onslide<3-> {
     \begin{table}[]
-        \begin{tabular}{ll}
-            \textbf{Constructor} & \textbf{Scott Encoding} \\
-            $\text{Var}(n)$ & $\lambda v\, l\, a.\; v\; n$ \\
-            $\text{Lam}(t)$ & $\lambda v\, l\, a.\; l\; t$ \\
-            $\text{App}(t_1, t_2)$ & $\lambda v\, l\, a.\; a\; t_1\; t_2$ \\
+        \begin{tabular}{rcl}
+            \textbf{Constructor} & & \textbf{Scott Encoding} \\
+            $\concrep{\texttt{LPAR}}$       & = & $\lambda l\, r\, a\, v.\; l$ \\
+            $\concrep{\texttt{RPAR}}$       & = & $\lambda l\, r\, a\, v.\; r$ \\
+            $\concrep{\texttt{LAM}}$        & = & $\lambda l\, r\, a\, v.\; a$ \\
+            $\concrep{\texttt{NAT(n)}}$     & = & $\lambda l\, r\, a\, v.\; v\; n$ \\
             \hline
-            \texttt{LPAR}   & $\lambda l\, r\, a\, v.\; l$ \\
-            \texttt{RPAR}   & $\lambda l\, r\, a\, v.\; r$ \\
-            \texttt{LAM}    & $\lambda l\, r\, a\, v.\; a$ \\
-            \texttt{NAT(n)} & $\lambda l\, r\, a\, v.\; v\; n$ \\
+            $\absrep{\text{Var}(n)}$        & = & $\lambda v\, l\, a.\; v\; n$ \\
+            $\absrep{\text{Lam}(t)}$        & = & $\lambda v\, l\, a.\; l\; t$ \\
+            $\absrep{\text{App}(t_1, t_2)}$ & = & $\lambda v\, l\, a.\; a\; t_1\; t_2$ \\
         \end{tabular}
     \end{table}
-    }
 
     \column{0.48\textwidth}
     \onslide<4-> {
@@ -118,21 +128,21 @@
         t\; fv\; fl\; fa = \begin{cases}
             fv\; n         & (t = \text{Var}(n)) \\
             fl\; t'        & (t = \text{Lam}(t')) \\
-            fa\; t_1\; t_2 & (t = \text{App}(t_1, t_2)
+            fa\; t_1\; t_2 & (t = \text{App}(t_1, t_2))
         \end{cases}
     \]
     }
     \end{columns}
 
     \onslide<5-> {
-    \begin{exampleblock}{Example: $\lambda x. \lambda y. x$}
+    \begin{exampleblock}{Example: $\lambda x.\; \lambda y.\; x = \lambda.\; \lambda.\; 1$}
         \[
-            \lambda v\, l\, a.\; l\; \onslide<6-> {
-                (\lambda v\, l\, a.\; l\; \onslide<7-> {
-                    (\lambda v\, l\, a.\; a\; \onslide <8-> {
-                        (\lambda s\, z.\; s\; z)
-                    })
-                })
+            \onslide<6-> {\lambda v\, l\, a.\; l\;
+                \onslide<7-> {(\lambda v\, l\, a.\; l\;
+                    \onslide<8-> {(\lambda v\, l\, a.\; v\;
+                        \onslide <9-> {(\lambda s\, z.\; s\; z)}
+                    )}
+                )}
             }
         \]
     \end{exampleblock}
@@ -150,10 +160,10 @@
         \centering
         \small
         \begin{tabular}{@{}lll@{}}
-            \onslide<2->{
+            \onslide<2->{%
             \textbf{Constructor} & \textbf{Church} & \textbf{Scott} \\
-            $0$ & $\lambda s\, z.\; z$ & $\lambda s\, z.\; z$ \\
-            $\texttt{succ } n$ & $\lambda s\, z.\; s\; z$ & $\lambda s\, z.\; s\; (\lambda s\, z.\; z)$ \\
+            \texttt{nil} & $\lambda n\, c.\; n$ & $\lambda n\, c.\; n$ \\
+            $\texttt{cons}\; h\; t$ & $\lambda n\, c.\; c\; h\; (t\; n\; c)$ & $\lambda n\, c.\; c\; h\; t$ \\
             \hline}\onslide<3->{%
             \noindent%
             $\text{Var}(n)$ & $\lambda v\, l\, a.\; v\; n$ & $\lambda v\, l\, a.\; v\; n$ \\
@@ -173,16 +183,17 @@
 % ================================
 \begin{frame}{Self-Interpreter \texttt{e\_eval}}
     \begin{itemize}
-        \item Suppose $\ulcorner M \urcorner$ is the AST encoding of a $\lambda$-expression $M$.
-        \item<2-> Interpreter \texttt{e\_eval} must satisfy $\text{App} (\texttt{e\_eval}, \ulcorner M \urcorner) \simeq_\beta M$.
+        \item Interpreter \texttt{e\_eval} must satisfy $\text{App} (\texttt{e\_eval}, \absrep{M}) =_\beta M$.
+        \item<2-> Conceptually, $\texttt{eval} \in
+            \texttt{AST} \times \texttt{Env} \rightarrow \lambda\texttt{-expr.}$
+            \item<3-> $\texttt{eval}\; \absrep{n}\; env = (n\text{-th variable in }env)$
+            \item<4-> $\texttt{eval}\; \absrep{\lambda x.\; t}\; env =
+                \lambda x.\; (\texttt{eval}\; t\; (x :: env))$
+            \item<5-> $\texttt{eval}\; \absrep{t_1\; t_2}\; env =
+                (\texttt{eval}\; t_1\; env)\; (\texttt{eval}\; t_2\; env)$
     \end{itemize}
     \begin{align*}
-        \onslide<3->{
-        \texttt{e\_eval}
-        &= \lambda\; ast.\; \texttt{eval\_comb} \; ast \; \texttt{nil}
-        \qquad (\text{List of variables that have been defined})\\
-        }
-        \onslide<4->{
+        \onslide<6->{
         \texttt{eval\_comb}
         &= \lambda\; ast\, lst.\; ast \\
         &\qquad (\lambda n.\; \texttt{lookup}\; lst\; n)
@@ -194,10 +205,45 @@
         }
     \end{align*}
     \begin{itemize}
-        \item<5-> \texttt{cons}: Push every index up by one
-        \item<5-> Recursion via $Y$-combinator
+        \item<8-> \texttt{cons}: Push every index up by one
+        \item<8-> Recursion via $Y$-combinator
+        \item<9-> $\Rightarrow\texttt{e\_eval}
+            = \lambda\; ast.\; \texttt{eval\_comb} \; ast \; \texttt{nil}$
     \end{itemize}
 
+\end{frame}
+
+% ================================
+\begin{frame}{Self-Parser \texttt{e\_parse}}
+    \begin{itemize}
+        \item Similar for parsing, though more complicated case analysis
+        \item<2-> $\texttt{parse} \in \texttt{tok list} \rightarrow \texttt{AST} \times \texttt{tok list}$
+    \end{itemize}
+    \begin{align*}
+        \onslide<3-> {\texttt{parse}\; (\concrep{\texttt{NAT(n)}} :: lst)
+            =&\; (\absrep{\text{Var}(n)}, lst)} \\
+        \onslide<4-> {\texttt{parse}\; (\concrep{\texttt{LPAR}} :: \concrep{\texttt{LAM}} :: lst)
+            =&\; \texttt{let}\; (t,\; \concrep{\texttt{RPAR}} :: lst') = \texttt{parse}\; lst\; \texttt{in} \\
+             &\; (\absrep{\text{Lam}(t)}, lst')} \\
+        \onslide<5-> {\texttt{parse}\; (\concrep{\texttt{LPAR}} :: lst)
+            =&\; \texttt{let}\; (t_1,\; \concrep{\texttt{RPAR}} :: lst')
+                = \texttt{parse}\; lst\; \texttt{in} \\
+             &\; \texttt{let}\; (t_2,\; \concrep{\texttt{RPAR}} :: lst'')
+                = \texttt{parse}\; lst'\; \texttt{in} \\
+             &\; (\absrep{\text{App}(t_1, t_2)}, lst'')}
+    \end{align*}
+    \begin{itemize}
+        \item<6-> Implementation in GitHub repository!
+    \end{itemize}
+\end{frame}
+
+% ================================
+\begin{frame}{Summary}
+    \begin{itemize}
+        \item Pure $\lambda$-calculus is capable of reasoning about itself!
+        \item<2-> Representing arbitrary constructors: Church vs. Scott encoding
+        \item<3-> Parsing \& Evaluation: Relatively straightforward \texttt{match} expressions
+    \end{itemize}
 \end{frame}
 
 \end{document}
